@@ -12,6 +12,9 @@ class Conexion {
     }
 
 
+    
+
+
     class MiColaDePrioridad {
         private Conexion[] conexiones;
         private int tamanio;
