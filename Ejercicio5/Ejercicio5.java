@@ -42,9 +42,12 @@ class MiMinHeap {
         Integer idx = indicePorVertice.get(vertice);
         if (idx == null) return;
 
-        Par<Integer, Integer> par = heap[idx];
+        //Par<Integer, Integer> par = heap[idx];
         //heap[idx].valor = nuevaDistancia;
+        heap[idx].setValor(nuevaDistancia);
         flotar(idx);
+
+
     }
 
     public boolean estaVacio() {
@@ -115,6 +118,10 @@ class Par<K, V> {
     public V getValor() {
         return valor;
     }
+
+    public void setValor(V valor) {
+        this.valor = valor;
+    }
 }
 
 class NodoAdyacente {
@@ -161,25 +168,35 @@ public class Ejercicio5 {
         while (!distanciasPendientes.estaVacio()) {
             Par<Integer, Integer> actual = distanciasPendientes.eliminar();
             int verticeActual = actual.getClave();
-
+        
             if (visitado[verticeActual]) {
                 continue;
             }
             visitado[verticeActual] = true;
-
+        
+            System.out.println("Explorando nodo: " + verticeActual + ", distancia: " + distancias[verticeActual]);
+        
             NodoAdyacente vecino = grafo.obtenerAdyacentes(verticeActual);
+
             while (vecino != null) {
                 if (!visitado[vecino.vertice] && distancias[verticeActual] + vecino.peso < distancias[vecino.vertice]) {
+                    System.out.println("VecinoVertice: " + vecino.vertice);
+                    System.out.println("vecino.peso: " + vecino.peso);
+                    System.out.println("VerticeActual: " + verticeActual);
+                    System.out.println("distancias[vecino.vertice]: " + distancias[vecino.vertice]);
+                    
                     distancias[vecino.vertice] = distancias[verticeActual] + vecino.peso;
                     distanciasPendientes.disminuirClave(vecino.vertice, distancias[vecino.vertice]);
+                    System.out.println("Actualizado nodo " + vecino.vertice + " con distancia " + distancias[vecino.vertice]);
+                    System.out.println("DistanciaMinim: " + distancias[vecino.vertice]);
                 }
                 vecino = vecino.siguiente;
             }
         }
-        
-        if (!visitado[destino]) {
+    
+        /*if (!visitado[destino]) {
             return -1;
-        }
+        }*/
         return distancias[destino];
     }
 
@@ -219,55 +236,64 @@ public class Ejercicio5 {
 
         */
 
-        5 19
-        1 2 16
-        1 4 93
-        1 5 63
-        2 1 60
-        2 3 27
-        2 4 12
-        2 5 30
-        3 1 63
-        3 2 36
-        3 4 59
-        3 5 94
-        4 1 43
-        4 2 22
-        4 3 38
-        4 5 71
-        5 1 92
-        5 2 74
-        5 3 97
-        5 4 26
-        5 1
-        int planetas = escaner.nextInt(); // Número de nodos
-        int portales = escaner.nextInt(); // Número de aristas
+
+        int planetas = 5; // Número de nodos
+        int portales = 19; // Número de aristas
 
         System.out.println("planetas:" + planetas);
         System.out.println("portales:" + portales);
-        Grafo grafo = new Grafo(planetas);
+        Grafo grafo = new Grafo(planetas+1);
+         
+        grafo.agregarArista(1, 2, 16);
+        grafo.agregarArista(2, 1, 16);
+        grafo.agregarArista(1, 4, 93);
+        grafo.agregarArista(4, 1, 93);
+        grafo.agregarArista(5, 1, 63);
+        grafo.agregarArista(1, 5, 63);
+        grafo.agregarArista(2, 3, 27);
+        grafo.agregarArista(3, 2, 27);
+        grafo.agregarArista(2, 4, 12);
+        grafo.agregarArista(4, 2, 12);
+        grafo.agregarArista(2, 5, 30);
+        grafo.agregarArista(5, 2, 30);
+        grafo.agregarArista(3, 1, 63);
+        grafo.agregarArista(1, 3, 63);
+        grafo.agregarArista(3, 2, 36);
+        grafo.agregarArista(2, 3, 36);
+        grafo.agregarArista(3, 4, 59);
+        grafo.agregarArista(4, 3, 59);
+        grafo.agregarArista(3, 5, 94);
+        grafo.agregarArista(5, 3, 94);
+        grafo.agregarArista(4, 1, 43);
+        grafo.agregarArista(1, 4, 43);
+        grafo.agregarArista(4, 2, 22);
+        grafo.agregarArista(2, 4, 22);
+        grafo.agregarArista(4, 3, 38);
+        grafo.agregarArista(3, 4, 38);
+        grafo.agregarArista(4, 5, 71);
+        grafo.agregarArista(5, 4, 71);
+        grafo.agregarArista(5, 1, 92);
+        grafo.agregarArista(1, 5, 92);
+        grafo.agregarArista(5, 2, 74);
+        grafo.agregarArista(2, 5, 74);
+        grafo.agregarArista(5, 3, 97);
+        grafo.agregarArista(3, 5, 97);
+        grafo.agregarArista(5, 4, 26);
+        grafo.agregarArista(4, 5, 26);
+    
 
-        for (int i = 0; i < portales; i++) {
-            int planetaOrigen = escaner.nextInt(); 
-            int planetaDestino = escaner.nextInt();
-            int costo = escaner.nextInt();
-            System.out.println("planetaOrigen " + planetaOrigen);
-            System.out.println("planetaDestino " + planetaDestino);
-            System.out.println("costo " + costo);
-            grafo.agregarArista(planetaOrigen-1, planetaDestino-1, costo);  // -1 porque asumimos que la entrada es indice 1
-            grafo.agregarArista(planetaDestino-1, planetaOrigen-1, costo);  // y convertimos a indice 0 para nuestro grafo.
-        }
 
-        int planetaOrigen = escaner.nextInt(); // Convertimos a indice 0
-        int planetaDestino = escaner.nextInt(); // Convertimos a indice 0
+
+        int planetaOrigen = 5; //5; // Convertimos a indice 0
+        int planetaDestino = 1;//1; // Convertimos a indice 0
         
         
         System.out.println("planetaOrigen:" + planetaOrigen);
         System.out.println("planetaDestino:" + planetaDestino);
 
-        int costoMinimo = calcularCostoMinimo(grafo, planetaOrigen-1, planetaDestino-1);
+        int costoMinimo = calcularCostoMinimo(grafo, planetaOrigen, planetaDestino);
         System.out.println(costoMinimo);
-        escaner.close();
+    //escaner.close();
 
 
 
