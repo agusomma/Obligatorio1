@@ -83,6 +83,7 @@ class MiColaDePrioridad {
         }
 
         return minimaConexion;
+
     }
 
     private void actualizarPosicion(int posicion, int nuevaPosicion) {
@@ -91,7 +92,6 @@ class MiColaDePrioridad {
         conexiones[nuevaPosicion] = con;
     }
 }
-
 
 
 public class Ejercicio6 {
@@ -118,9 +118,6 @@ public class Ejercicio6 {
             conexiones[4] = con5;
         
            */
-
-
-
 
 
         Scanner scanner = new Scanner(System.in);
