@@ -120,7 +120,10 @@ public class Ejercicio6 {
            */
 
 
-           Scanner scanner = new Scanner(System.in);
+
+
+
+        Scanner scanner = new Scanner(System.in);
 
         int cantUbicaciones = scanner.nextInt(); // Número de ubicaciones
         int cantConexiones = scanner.nextInt(); // Número de conexiones
