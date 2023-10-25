@@ -21,7 +21,6 @@ class MiHashTable {
             }
         }
     }
-
     private static boolean esPrimo(int numero) {
         if (numero <= 1) {
             return false;
@@ -37,12 +36,15 @@ class MiHashTable {
             if (numero % divisor == 0 || numero % (divisor + 2) == 0) {
                 return false;
             }
-            divisor += 6;
+            divisor += 6; // probamos solo los valores que tienen la posibilidad de ser primos. 
+
         }
         return true;
     }
 
-    private int hashHorner(String nombre) {
+
+    private int hashHorner(String nombre) { 
+
         int hash = 0;
         for (int i = 0; i < nombre.length(); i++) {
             hash = (hash * BASE + nombre.charAt(i)) % tabla.length;
@@ -56,13 +58,15 @@ class MiHashTable {
         if (tabla[indice] == null) {
             tabla[indice] = new PlatoEntrada(nombre);
             tamanio++;
-        } else {
+        } 
+      else {
             PlatoEntrada actual = tabla[indice];
             while (actual != null) {
                 if (actual.nombre.equals(nombre)) {
                     actual.incrementarFrecuencia();
                     return;
                 }
+
                 if (actual.siguiente == null) {
                     actual.siguiente = new PlatoEntrada(nombre);
                     tamanio++;
@@ -89,6 +93,7 @@ class MiHashTable {
     public MiListaDePlatos obtenerPlatos() {
         MiListaDePlatos listaPlatos = new MiListaDePlatos();
 
+
         for (int i = 0; i < tabla.length; i++) {
             PlatoEntrada actual = tabla[i];
             while (actual != null) {
@@ -100,7 +105,6 @@ class MiHashTable {
         return listaPlatos;
     }
 }
-
 class minHeapOrdenaPlatoEntrada {
     private PlatoEntrada[] heap;
     private int capacidad;
@@ -238,7 +242,9 @@ class NodoPlatoEntrada {
     }
 }
 
-class PlatoEntrada implements Comparable<PlatoEntrada> {
+
+class PlatoEntrada implements Comparable<PlatoEntrada>{
+
     String nombre;
     int frecuencia;
     PlatoEntrada siguiente;
@@ -252,32 +258,48 @@ class PlatoEntrada implements Comparable<PlatoEntrada> {
     void incrementarFrecuencia() {
         frecuencia++;
     }
-
-    @Override
-    public int compareTo(PlatoEntrada otroPlato) {
-        if (this.frecuencia != otroPlato.frecuencia) {
-            return Integer.compare(this.frecuencia,otroPlato.frecuencia); // Compara por frecuencia descendente
+     @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        PlatoEntrada otroPlato = (PlatoEntrada) o;
+        if (nombre != null) {
+            return nombre.equals(otroPlato.nombre);
         } else {
-            return otroPlato.nombre.compareTo(this.nombre); // Compara alfabéticamente por nombre
+            return otroPlato.nombre == null;
         }
     }
-
+    @Override
+    public int compareTo(PlatoEntrada otroPlato) {
+        int comparacionPorFrecuencia = Integer.compare(otroPlato.frecuencia, this.frecuencia);
+        if (comparacionPorFrecuencia != 0) {
+            return comparacionPorFrecuencia;
+        }
+        // Si las frecuencias son iguales, comparar alfabéticamente por nombre
+        return this.nombre.compareTo(otroPlato.nombre);
+    }
 }
-
 public class Ejercicio1 {
     public static void main(String[] args) {
 
         Scanner scanner = new Scanner(System.in);
         int numeroN = Integer.parseInt(scanner.nextLine());
 
+
         MiHashTable tablaHash = new MiHashTable(numeroN * 2);
+
 
         for (int i = 0; i < numeroN; i++) {
             String nombrePlato = scanner.nextLine();
             tablaHash.agregar(nombrePlato);
         }
 
-        MiListaDePlatos listaOrdenada = tablaHash.obtenerPlatos().ordenar(numeroN * 2);
+        MiListaEnlazada listaOrdenada = tablaHash.obtenerPlatos().ordenar();
         listaOrdenada.imprimirNombresDesdeInicio();
+        scanner.close();
     }
 }

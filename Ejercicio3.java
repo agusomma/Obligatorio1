@@ -32,8 +32,16 @@ class Paciente implements Comparable<Paciente> {
 class MiColaDePrioridad {
     private Paciente[] array;
     private int tamanio;
+  
+    private static final int CAPACIDAD_INICIAL = 10;
+
+
     public MiColaDePrioridad(int capacidadInicial) {
-        array = new Paciente[capacidadInicial];
+      array = new Paciente[capacidadInicial];
+      tamanio = 0;
+
+    public MiColaDePrioridad() {
+        array = new Paciente[CAPACIDAD_INICIAL];
         tamanio = 0;
     }
 
@@ -115,7 +123,7 @@ public class Ejercicio3 {
         // Leer el número de pacientes
         int N = scanner.nextInt();
 
-        MiColaDePrioridad colaPacientes = new MiColaDePrioridad(N);
+        MiColaDePrioridad colaPacientes = new MiColaDePrioridad();
         
         // Leer cada paciente y agregarlo a la cola de prioridad
         for (int i = 0; i < N; i++) {

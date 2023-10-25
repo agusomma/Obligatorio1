@@ -39,6 +39,7 @@ class Plato {
 }
 
 class PlatoLista {
+
     NodoPlato primero;
     int tamanio;
 
@@ -46,8 +47,8 @@ class PlatoLista {
         this.primero = null;
         this.tamanio = 0;
     }
-
     void agregar(Plato plato) {
+
         NodoPlato nuevoNodo = new NodoPlato(plato);
         if (primero == null) {
             primero = nuevoNodo;
@@ -72,7 +73,6 @@ class PlatoLista {
     int tamanio() {
         return this.tamanio;
     }
-
     void ordenarAlfabeticamente() {
         if (tamanio <= 1) {
             return; // No se necesita ordenar
@@ -214,11 +214,90 @@ class PlatoGrafo {
         stack.push(plato);
         System.out.println("stack.push.plato:" + plato.toString());
         orden.agregar(plato);
+
+class Restaurante {
+    private PlatoLista platos;
+    private miStack resultado;
+    private Scanner sc;
+
+    public Restaurante(Scanner sc) {
+        this.platos = new PlatoLista(100);
+        this.resultado = new miStack(100);
+        this.sc = sc;
+    }
+
+    public void leerPlatos() {
+        int P = Integer.parseInt(sc.nextLine());
+
+        for (int i = 0; i < P; i++) {
+            String nombrePlato = sc.nextLine();
+            platos.agregar(new Plato(nombrePlato, P));
+        }
+    }
+
+    public void leerDependencias() {
+        int D = Integer.parseInt(sc.nextLine());
+
+        for (int i = 0; i < D; i++) {
+            String platoA_nombre = sc.next();
+            String platoB_nombre = sc.next();
+            sc.nextLine();
+
+            Plato platoA = platos.buscarPorNombre(platoA_nombre);
+            Plato platoB = platos.buscarPorNombre(platoB_nombre);
+
+            platoA.agregarDependencia(platoB);
+        }
+    }
+
+    public boolean verificarCiclos() {
+        for (int i = 0; i < platos.tamanio(); i++) {
+            if (!platos.obtener(i).visitado) {
+                if (esCiclico(platos.obtener(i))) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public void imprimirResultado() {
+        while (!resultado.estaVacia()) {
+            System.out.println(resultado.pop().nombre);
+        }
+    }
+
+    private boolean esCiclico(Plato plato) {
+        if (plato.enStack) return true;
+        if (plato.visitado) return false;
+
+        plato.visitado = true;
+        plato.enStack = true;
+
+        // Ordenar alfabéticamente las dependencias
+        for (int i = 0; i < plato.numDependencias - 1; i++) {
+            for (int j = 0; j < plato.numDependencias - i - 1; j++) {
+                if (plato.dependencias[j].nombre.compareTo(plato.dependencias[j + 1].nombre) > 0) {
+                    Plato temp = plato.dependencias[j];
+                    plato.dependencias[j] = plato.dependencias[j + 1];
+                    plato.dependencias[j + 1] = temp;
+                }
+            }
+        }
+
+        for (int i = 0; i < plato.numDependencias; i++) {
+            if (esCiclico(plato.dependencias[i])) return true;
+        }
+
+        plato.enStack = false;
+        resultado.push(plato);
+        return false;
     }
 }
 
 public class Ejercicio4 {
     public static void main(String[] args) {
+
         Scanner scanner = new Scanner(System.in);
 
         int P = scanner.nextInt(); // Número total de platos
