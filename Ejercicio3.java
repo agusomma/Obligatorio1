@@ -32,8 +32,13 @@ class Paciente implements Comparable<Paciente> {
 class MiColaDePrioridad {
     private Paciente[] array;
     private int tamanio;
+  
     private static final int CAPACIDAD_INICIAL = 10;
 
+
+    public MiColaDePrioridad(int capacidadInicial) {
+      array = new Paciente[capacidadInicial];
+      tamanio = 0;
 
     public MiColaDePrioridad() {
         array = new Paciente[CAPACIDAD_INICIAL];

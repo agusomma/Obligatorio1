@@ -1,4 +1,5 @@
-\import java.util.Scanner;
+
+import java.util.Scanner;
 
 class MiHashTable {
 
@@ -36,11 +37,14 @@ class MiHashTable {
                 return false;
             }
             divisor += 6; // probamos solo los valores que tienen la posibilidad de ser primos. 
+
         }
         return true;
     }
 
+
     private int hashHorner(String nombre) { 
+
         int hash = 0;
         for (int i = 0; i < nombre.length(); i++) {
             hash = (hash * BASE + nombre.charAt(i)) % tabla.length;
@@ -55,22 +59,22 @@ class MiHashTable {
             tabla[indice] = new PlatoEntrada(nombre);
             tamanio++;
         } 
-        else {
+      else {
             PlatoEntrada actual = tabla[indice];
             while (actual != null) {
                 if (actual.nombre.equals(nombre)) {
                     actual.incrementarFrecuencia();
                     return;
                 }
-            if (actual.siguiente == null) {
-                actual.siguiente = new PlatoEntrada(nombre);
-                tamanio++;
-                return;
-            }
-            actual = actual.siguiente;
+
+                if (actual.siguiente == null) {
+                    actual.siguiente = new PlatoEntrada(nombre);
+                    tamanio++;
+                    return;
+                }
+                actual = actual.siguiente;
             }
         }
-
     }
 
     public int obtenerFrecuencia(String nombre) {
@@ -83,34 +87,12 @@ class MiHashTable {
             }
             actual = actual.siguiente;
         }
-        return 0; // Plato no encontrado
+        return 0;
     }
 
-    public void eliminar(String nombre) {// no se usa la elimino?
-        int indice = hashHorner(nombre);
-        PlatoEntrada actual = tabla[indice];
-        PlatoEntrada previo = null;
-        boolean eliminado = false;
+    public MiListaDePlatos obtenerPlatos() {
+        MiListaDePlatos listaPlatos = new MiListaDePlatos();
 
-        while (actual != null && !eliminado) {
-            if (actual.nombre.equals(nombre)) {
-                if (previo == null) {
-                    tabla[indice] = actual.siguiente;
-                } else {
-                    previo.siguiente = actual.siguiente;
-                }
-                tamanio--;
-                actual.siguiente = null;// para Garbage Collector
-                eliminado = true;
-            } else {
-                previo = actual;
-                actual = actual.siguiente;
-            }
-        }
-    }
-
-    public MiListaEnlazada obtenerPlatos() {
-        MiListaEnlazada listaPlatos = new MiListaEnlazada();
 
         for (int i = 0; i < tabla.length; i++) {
             PlatoEntrada actual = tabla[i];
@@ -123,93 +105,146 @@ class MiHashTable {
         return listaPlatos;
     }
 }
+class minHeapOrdenaPlatoEntrada {
+    private PlatoEntrada[] heap;
+    private int capacidad;
+    private int tamaño;
 
-class MiListaEnlazada {
+    public minHeapOrdenaPlatoEntrada(int capacidad) {
+        this.capacidad = capacidad;
+        this.tamaño = 0;
+        this.heap = new PlatoEntrada[capacidad];
+    }
+
+    public boolean estaVacia() {
+        return tamaño == 0;
+    }
+
+    public void agregar(PlatoEntrada plato) {
+        if (tamaño == capacidad) {
+            throw new IllegalStateException("Error: lleno");
+        }
+
+        tamaño++;
+        int i = tamaño - 1;
+        heap[i] = plato;
+
+        while (i != 0 && heap[padre(i)].compareTo(heap[i]) > 0) {
+            intercambiar(i, padre(i));
+            i = padre(i);
+        }
+    }
+
+    public PlatoEntrada extraerMinimo() {
+        if (estaVacia()) {
+            return null;
+        }
+        if (tamaño == 1) {
+            tamaño--;
+            return heap[0];
+        }
+
+        PlatoEntrada root = heap[0];
+        heap[0] = heap[tamaño - 1];
+        tamaño--;
+        miHeapify(0);
+
+        return root;
+    }
+
+    private void miHeapify(int i) {
+        int izquierda = izq(i);
+        int derecha = der(i);
+        int menor = i;
+
+        if (izquierda < tamaño && heap[izquierda].compareTo(heap[i]) < 0) {
+            menor = izquierda;
+        }
+        if (derecha < tamaño && heap[derecha].compareTo(heap[menor]) < 0) {
+            menor = derecha;
+        }
+
+        if (menor != i) {
+            intercambiar(i, menor);
+            miHeapify(menor);
+        }
+    }
+
+    private int padre(int i) {
+        return (i - 1) / 2;
+    }
+
+    private int izq(int i) {
+        return 2 * i + 1;
+    }
+
+    private int der(int i) {
+        return 2 * i + 2;
+    }
+
+    private void intercambiar(int i, int j) {
+        PlatoEntrada temp = heap[i];
+        heap[i] = heap[j];
+        heap[j] = temp;
+    }
+}
+
+class MiListaDePlatos {
     private NodoPlatoEntrada primero;
 
     public NodoPlatoEntrada getPrimero() {
-    return primero;
+        return primero;
     }
 
-    // para este caso es mas eficiente agregar al principio
     public void agregarAlPrincipio(PlatoEntrada plato) {
         NodoPlatoEntrada nuevoNodo = new NodoPlatoEntrada(plato);
         nuevoNodo.siguiente = primero;
         primero = nuevoNodo;
     }
 
-    public MiListaEnlazada ordenar() {
-    MiListaEnlazada listaOrdenada = new MiListaEnlazada();
+    public MiListaDePlatos ordenar(int capacidad) {
+        MiListaDePlatos listaOrdenada = new MiListaDePlatos();
 
-    if (primero != null) {
-        NodoPlatoEntrada nuevoPrimero = miMergeSort(primero);
-        listaOrdenada.primero = nuevoPrimero;
-    }
+        if (primero != null) {
+            minHeapOrdenaPlatoEntrada minHeap = new minHeapOrdenaPlatoEntrada(capacidad);
 
-    return listaOrdenada;
-}
+            NodoPlatoEntrada current = primero;
+            while (current != null) {
+                minHeap.agregar(current.plato);
+                current = current.siguiente;
+            }
 
-private NodoPlatoEntrada miMergeSort(NodoPlatoEntrada nodo) {
-    if (nodo == null || nodo.siguiente == null) {
-        return nodo;
-    }
-
-    NodoPlatoEntrada medio = encontrarMedio(nodo);
-    NodoPlatoEntrada mitadDerecha = medio.siguiente;
-    medio.siguiente = null;
-
-    NodoPlatoEntrada izquierda = miMergeSort(nodo);
-    NodoPlatoEntrada derecha = miMergeSort(mitadDerecha);
-
-    return miMerge(izquierda, derecha);
-}
-
-private NodoPlatoEntrada encontrarMedio(NodoPlatoEntrada nodo) {
-    NodoPlatoEntrada rapido = nodo;
-    NodoPlatoEntrada lento = nodo;
-    while (rapido != null && rapido.siguiente != null && rapido.siguiente.siguiente != null) {
-        rapido = rapido.siguiente.siguiente;
-        lento = lento.siguiente;
-    }
-    return lento;
-}
-
-private NodoPlatoEntrada miMerge(NodoPlatoEntrada izquierda, NodoPlatoEntrada derecha) {
-    if (izquierda == null) {
-        return derecha;
-    }
-    if (derecha == null) {
-        return izquierda;
-    }
-
-    if (izquierda.plato.compareTo(derecha.plato) <= 0) {
-        izquierda.siguiente = miMerge(izquierda.siguiente, derecha);
-        return izquierda;
-    } else {
-        derecha.siguiente = miMerge(izquierda, derecha.siguiente);
-        return derecha;
-    }
-}
-
-public void imprimirNombresDesdeInicio() {
-    NodoPlatoEntrada actual = primero;
-    while (actual != null) {
-        System.out.println(actual.plato.nombre);
-        actual = actual.siguiente;
-    }
-}
-}
-class NodoPlatoEntrada {
-        PlatoEntrada plato;
-        NodoPlatoEntrada siguiente;
-
-        NodoPlatoEntrada(PlatoEntrada plato) {
-            this.plato = plato;
-            this.siguiente = null;
+            while (!minHeap.estaVacia()) {
+                PlatoEntrada plato = minHeap.extraerMinimo();
+                listaOrdenada.agregarAlPrincipio(plato);
+            }
         }
+
+        return listaOrdenada;
+    }
+
+    public void imprimirNombresDesdeInicio() {
+        NodoPlatoEntrada actual = primero;
+        while (actual != null) {
+            System.out.println(actual.plato.nombre);
+            actual = actual.siguiente;
+        }
+    }
 }
+
+class NodoPlatoEntrada {
+    PlatoEntrada plato;
+    NodoPlatoEntrada siguiente;
+
+    NodoPlatoEntrada(PlatoEntrada plato) {
+        this.plato = plato;
+        this.siguiente = null;
+    }
+}
+
 
 class PlatoEntrada implements Comparable<PlatoEntrada>{
+
     String nombre;
     int frecuencia;
     PlatoEntrada siguiente;
@@ -254,7 +289,9 @@ public class Ejercicio1 {
         Scanner scanner = new Scanner(System.in);
         int numeroN = Integer.parseInt(scanner.nextLine());
 
-        MiHashTable tablaHash = new MiHashTable(numeroN*2);
+
+        MiHashTable tablaHash = new MiHashTable(numeroN * 2);
+
 
         for (int i = 0; i < numeroN; i++) {
             String nombrePlato = scanner.nextLine();
